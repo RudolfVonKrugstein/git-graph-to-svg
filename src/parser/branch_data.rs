@@ -3,6 +3,8 @@ use std::collections::HashMap;
 
 // Data we remember for every branch
 pub struct BranchData {
+    // The branch name
+    pub name: String,
     // The commit line
     pub(crate) commit_line: Vec<char>,
     // The commits we that are going to merge into this branch
@@ -10,8 +12,8 @@ pub struct BranchData {
     pub(crate) merge_into_commits: Vec<String>,
 }
 
-pub fn build_branch_data(input: String) -> Result<HashMap<String, BranchData>, String> {
-    let mut branch_datas = HashMap::new();
+pub fn build_branch_data(input: String) -> Result<Vec<BranchData>, String> {
+    let mut branch_datas = Vec::new();
 
     // Split the input into branch-lines
     let branch_lines = input.split("\n");
@@ -26,9 +28,9 @@ pub fn build_branch_data(input: String) -> Result<HashMap<String, BranchData>, S
         let commits = tmp[1];
 
         // And remember branches data
-        branch_datas.insert(
-            name.to_string(),
+        branch_datas.push(
             BranchData {
+                name: name.to_string(),
                 commit_line: commits.chars().collect::<Vec<char>>(),
                 merge_into_commits: Vec::new(),
             },

@@ -6,9 +6,9 @@ use std::collections::HashMap;
 
 pub struct Model {
     // All commits
-    pub(crate) commits: HashMap<String, Commit>,
+    pub commits: HashMap<String, Commit>,
     // All branches
-    pub(crate) branches: HashMap<String, Branch>,
+    pub branches: HashMap<String, Branch>,
     // Commit order
     commit_order: Vec<String>,
     // In which column are branches placed?
@@ -48,8 +48,8 @@ impl Model {
             .fold(-1, |base, b| max(base, b.priority))
     }
 
-    fn max_commit_time(&self) -> i32 {
-        self.commits.values().fold(-1, |base, c| max(base, c.time))
+    fn max_commit_time(&self) -> usize {
+        self.commits.values().fold(0, |base, c| max(base, c.time))
     }
 
     pub(crate) fn get_branch_last_commit(&self, branch_name: &String) -> Option<&String> {
@@ -58,17 +58,18 @@ impl Model {
             .and_then(|b| b.commits.last())
     }
 
-    pub(crate) fn add_branch(&mut self, name: String, style: String) {
+    pub fn add_branch(&mut self, name: String, style: String) {
+        let priority = self.max_branch_priority() + 1;
         self.branches.insert(
             name.clone(),
-            Branch::new(name.clone(), style, self.max_branch_priority() + 1),
+            Branch::new(name.clone(), style, priority),
         );
         insert_object_into_sorted_list(&mut self.branch_order, name.clone(), |a, b| {
             self.branches[a].priority.cmp(&self.branches[b].priority)
         });
     }
 
-    pub(crate) fn add_commit(
+    pub fn add_commit(
         &mut self,
         id: String,
         branch: String,
@@ -123,7 +124,7 @@ impl Model {
         return true;
     }
 
-    fn calc_branch_columns(&self) -> Vec<Vec<String>> {
+    pub fn calc_branch_columns(&self) -> Vec<Vec<String>> {
         let mut result: Vec<Vec<String>> = Vec::new();
         let current_col = 0;
         for branch in self.branch_order.iter() {

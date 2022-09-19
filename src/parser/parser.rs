@@ -11,44 +11,58 @@ pub fn parse_graph(input: String) -> Result<Model, String> {
 
     // Add the branches
     let mut max_commit_length = 0;
-    for (name, branch_data) in branch_datas.iter() {
+    for branch_data in branch_datas.iter() {
         // Insert the branch
         max_commit_length = max(max_commit_length, branch_data.commit_line.len());
-        result.add_branch(name.to_string(), "default".to_string());
+        result.add_branch(branch_data.name.clone(), "default".to_string());
     }
 
     // Go through all commits
     for index in 0..max_commit_length {
         if let Some(commit_data) = build_commit_data(&branch_datas, index) {
-            // Collect the parents
-            {
-                let mut parents = Vec::new();
-                for b in commit_data.merge_from_branches {
-                    match result.get_branch_last_commit(&b) {
-                        None => return Err("Cannot merge from empty branch".to_string()),
-                        Some(id) => parents.push(id.clone()),
-                    }
+            // Find the corresponding branch data
+            let mut commits_branch_data_index=0;
+            for (index, branch_data) in branch_datas.iter().enumerate() {
+                if branch_data.name == commit_data.branch {
+                    commits_branch_data_index = index;
                 }
-                match result.get_branch_last_commit(&commit_data.branch) {
-                    None => {}
-                    Some(c) => {
-                        parents.push(c.clone());
-                    }
-                }
-                result.add_commit(
-                    commit_data.commit_id.clone(),
-                    commit_data.branch,
-                    "".to_string(),
-                    parents,
-                )?;
             }
+            // Collect the parents
+            let mut parents = Vec::new();
+            // Parents from merge into branches!
+            for b in commit_data.merge_from_branches {
+                match result.get_branch_last_commit(&b) {
+                    None => return Err("Cannot merge from empty branch".to_string()),
+                    Some(id) => parents.push(id.clone()),
+                }
+            }
+            // Parent from last commit
+            match result.get_branch_last_commit(&commit_data.branch) {
+                None => {}
+                Some(c) => {
+                    parents.push(c.clone());
+                }
+            }
+            // Parents from commits that we want to merge into this branch
+            for id in branch_datas[commits_branch_data_index].merge_into_commits.iter() {
+                parents.push(id.clone());
+            }
+            branch_datas[commits_branch_data_index].merge_into_commits.clear();
+            result.add_commit(
+                commit_data.commit_id.clone(),
+                commit_data.branch,
+                "".to_string(),
+                parents,
+            )?;
+
             // Remember the commit for all branches that want to merge it
             for target_branch in commit_data.merge_into_branches {
-                branch_datas
-                    .get_mut(&target_branch)
-                    .unwrap()
-                    .merge_into_commits
-                    .push(commit_data.commit_id.clone());
+                for branch_data in branch_datas.iter_mut() {
+                    if branch_data.name == target_branch {
+                        branch_data.merge_into_commits.push(commit_data.commit_id.clone());
+                        break;
+                    }
+                }
             }
         }
     }

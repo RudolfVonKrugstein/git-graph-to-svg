@@ -5,9 +5,9 @@ pub enum LayoutDirection {
 
 pub struct LayoutOptions {
     pub graph_direction: LayoutDirection,
-    pub commit_hist_dist: i32,
-    pub branch_dist: i32,
-    pub commit_radius: i32,
+    pub commit_hist_dist: usize,
+    pub branch_dist: usize,
+    pub commit_radius: usize,
 }
 
 impl LayoutOptions {

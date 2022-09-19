@@ -1,5 +1,8 @@
+#[macro_use]
+extern crate error_chain;
+
 mod model;
-mod options;
+pub mod options;
 mod parser;
 mod printer;
 

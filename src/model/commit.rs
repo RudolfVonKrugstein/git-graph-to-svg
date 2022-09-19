@@ -3,17 +3,17 @@ pub struct Commit {
     // Normally shown inside the commits circle
     id: String,
     // All parents of this commits (their ids)
-    parents: Vec<String>,
+    pub parents: Vec<String>,
     // The commit message
     message: String,
     // The branch of this commit belongs to
     // Of course in git a commit can belong to multiple branches.
     // Here the branch determines the drawing style of the commit
     // And its row
-    branch: String,
+    pub branch: String,
     // The time of the commit
     // This is just a number used for ordering commits
-    pub(crate) time: i32,
+    pub time: usize,
     // The style, may override the branch style
     style: Option<String>,
 }
@@ -24,7 +24,7 @@ impl Commit {
         parents: Vec<String>,
         message: String,
         branch: String,
-        time: i32,
+        time: usize,
     ) -> Commit {
         Commit {
             id,
