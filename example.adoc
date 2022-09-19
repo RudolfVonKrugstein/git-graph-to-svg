@@ -1,0 +1,13 @@
+= Doc Title
+
+This is an example of embedding Pikchr in asciidoc with live preview
+
+.A silly little Pikchr diagram
+[pikchr]
+----
+arrow
+box "foo"
+down
+arrow
+box "bar"
+----

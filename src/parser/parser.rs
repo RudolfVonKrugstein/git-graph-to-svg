@@ -1,84 +1,10 @@
 use crate::model::model::Model;
 use std::cmp::max;
 use std::collections::HashMap;
+use crate::parser::branch_data::build_branch_data;
+use crate::parser::commit_data::build_commit_data;
 
-// Data we remember for every branch
-struct BranchData {
-    // The commit line
-    commit_line: Vec<char>,
-    // The commits we that are going to merge into this branch
-    // with the next commit
-    merge_into_commits: Vec<String>,
-}
-
-struct CommitData {
-    commit_id: String,
-    branch: String,
-    merge_into_branches: Vec<String>,
-    merge_from_branches: Vec<String>,
-}
-
-fn build_branch_data(input: String) -> Result<HashMap<String, BranchData>, String> {
-    let mut branch_datas = HashMap::new();
-
-    // Split the input into branch-lines
-    let branch_lines = input.split("\n");
-    let mut max_commit_length = 0;
-
-    for branch_line in branch_lines {
-        let tmp = branch_line.split(":").collect::<Vec<&str>>();
-        if tmp.len() != 2 {
-            return Err(format!("Incorrect number of : in line {branch_line}"));
-        }
-        let name = tmp[0].trim();
-        let commits = tmp[1];
-
-        // And remember branches data
-        branch_datas.insert(
-            name.to_string(),
-            BranchData {
-                commit_line: commits.chars().collect::<Vec<char>>(),
-                merge_into_commits: Vec::new(),
-            },
-        );
-        max_commit_length = max(max_commit_length, commits.len())
-    }
-    Ok(branch_datas)
-}
-
-fn build_commit_data(
-    branch_datas: &HashMap<String, BranchData>,
-    commit_index: usize,
-) -> Option<CommitData> {
-    let mut commit_and_branch: Option<(String, String)> = None;
-    let mut merge_into_branches = Vec::new();
-    let mut merge_from_branches = Vec::new();
-
-    // Test if there is any commit on any branch ..
-    for (name, branch_data) in branch_datas.iter() {
-        let commit_symbol = branch_data.commit_line.get(commit_index).unwrap_or(&' ');
-        if commit_symbol.is_alphanumeric() {
-            commit_and_branch = Some((
-                branch_data.commit_line[commit_index].to_string(),
-                name.clone(),
-            ));
-        }
-        if commit_symbol == &'<' {
-            merge_into_branches.push(name.clone());
-        }
-        if commit_symbol == &'>' {
-            merge_from_branches.push(name.clone());
-        }
-    }
-    commit_and_branch.map(|(commit_id, branch)| CommitData {
-        commit_id,
-        branch,
-        merge_into_branches,
-        merge_from_branches,
-    })
-}
-
-fn parse_graph(input: String) -> Result<Model, String> {
+pub fn parse_graph(input: String) -> Result<Model, String> {
     let mut result = Model::new();
 
     let mut branch_datas = build_branch_data(input)?;

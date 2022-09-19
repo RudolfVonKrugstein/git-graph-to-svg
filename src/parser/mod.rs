@@ -1,3 +1,5 @@
 use crate::model::model::Model;
 
-mod parser;
+pub mod parser;
+mod branch_data;
+mod commit_data;

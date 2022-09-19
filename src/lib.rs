@@ -1,5 +1,10 @@
 mod model;
+mod options;
 mod parser;
+mod printer;
+
+pub use parser::parser::parse_graph;
+pub use printer::print_pikchr;
 
 #[cfg(test)]
 mod tests {
