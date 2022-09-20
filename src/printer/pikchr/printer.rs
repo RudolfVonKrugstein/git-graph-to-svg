@@ -74,5 +74,29 @@ pub fn print_pikchr(model: &Model, options: &LayoutOptions) -> Result<String> {
     }
   }
 
+
+  // Prepare branch tips
+  writeln!(buf, "boxht = 0;");
+
+  // Branch tips!
+  let commits_branch_tops = model.calc_branch_tips_for_commits();
+  for (commit, branches) in commits_branch_tops.iter() {
+    for (index, branch) in branches.iter().enumerate() {
+     if index == 0 {
+       // First branch
+       writeln!(buf, "right");
+       writeln!(buf, "line from {} to ({}cm, {}.y) chop", commit, branch_cols.len() * options.branch_dist, commit);
+       writeln!(buf, "box \"{}\"", branch);
+       if (branches.len() > 1) {
+         writeln!(buf, "down");
+       }
+     } else {
+       // Other branches
+       writeln!(buf, "box \"{}\"", branch);
+     }
+    }
+  }
+
+
   Ok(String::from_utf8(buf.into_inner()?)?)
 }

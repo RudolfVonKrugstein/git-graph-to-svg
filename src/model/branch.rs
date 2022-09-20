@@ -20,7 +20,7 @@ impl Branch {
         }
     }
 
-    fn current_commit(&self) -> Option<&String> {
+    pub(crate) fn current_commit(&self) -> Option<&String> {
         self.current_commit.as_ref().or(self.commits.last())
     }
 }

@@ -149,4 +149,20 @@ impl Model {
         }
         result
     }
+
+    pub fn calc_branch_tips_for_commits(&self) -> HashMap<&String,Vec<&String>> {
+        let mut result: HashMap<&String,Vec<&String>> = HashMap::new();
+
+        for (name, branch) in self.branches.iter() {
+            if let Some(commit) = branch.current_commit() {
+                if let Some(value) = result.get_mut(commit) {
+                    value.push(name);
+                } else {
+                    result.insert(commit, vec![name]);
+                }
+            }
+        }
+
+        result
+    }
 }

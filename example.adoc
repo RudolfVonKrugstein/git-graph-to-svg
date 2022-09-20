@@ -21,4 +21,11 @@ arrow <- to 5cm above F chop
 circle "G"
 arrow from E chop then to 2cm below E then to A chop
 arrow from D chop then to 2cm above G then to G chop
+boxht = 0;
+right
+line from D to (4cm, D.y) chop
+box "main1"
+right
+line from G to (4cm, G.y) chop
+box "main2"
 ----
