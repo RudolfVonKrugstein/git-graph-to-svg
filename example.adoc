@@ -5,27 +5,29 @@ This is an example of embedding Pikchr in asciidoc with live preview
 .A silly little Pikchr diagram
 [pikchr]
 ----
-up
+down
 circlerad = 1cm
-circle "A" at (0cm, 3cm)
-arrow <- to 5cm above A chop
-circle "B"
-arrow <- to 5cm above B chop
+// branch: feature/x
+circle "D" at (2cm, 9cm)
+// branch: main
+circle "F" at (0cm, 15cm)
+arrow 1cm chop
+circle "E"
+arrow 4cm chop
 circle "C"
-arrow <- to 5cm above C chop
-circle "D"
-circle "E" at (2cm, 6cm)
-arrow <- to 5cm above E chop
-circle "F"
-arrow <- to 5cm above F chop
-circle "G"
-arrow from E chop then to 2cm below E then to A chop
-arrow from D chop then to 2cm above G then to G chop
+arrow 1cm chop
+circle "B"
+arrow 1cm chop
+circle "A"
+// out of branch parents
+arrow from F chop then to 4cm above D then to D chop
+arrow from D chop then to 4cm below D then to B chop
+// branch heads
 boxht = 0;
 right
 line from D to (4cm, D.y) chop
-box "main1"
+box "feature/x"
 right
-line from G to (4cm, G.y) chop
-box "main2"
+line from F to (4cm, F.y) chop
+box "main"
 ----

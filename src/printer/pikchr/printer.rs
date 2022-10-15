@@ -1,102 +1,83 @@
 use std::io::{BufWriter, Write};
-use crate::model::model::Model;
 use crate::options::layout::{LayoutDirection, LayoutOptions};
+use crate::model::view::View;
 use super::super::errors::*;
 
-pub fn print_pikchr(model: &Model, options: &LayoutOptions) -> Result<String> {
+pub fn print_pikchr(view: &View, options: &LayoutOptions) -> Result<String> {
+  // Output buffer
   let mut buf = BufWriter::new(Vec::new());
   // Start with the direction
   match options.graph_direction {
-    LayoutDirection::UP => writeln!(buf, "up").map_err(|e| e.to_string())?,
+    LayoutDirection::UP => writeln!(buf, "down").map_err(|e| e.to_string())?,
     LayoutDirection::RIGHT => {}
   }
 
   // Options
   writeln!(buf, "circlerad = {}cm", options.commit_radius)?;
 
-  // Calc the cols of the branches
-  let branch_cols = model.calc_branch_columns();
-
-  // Go through the branches
-  for (col, branches) in branch_cols.iter().enumerate() {
-    for name in branches {
-      let branch = model.branches.get(name).unwrap();
-      for (index, commit_id) in branch.commits.iter().enumerate() {
-        let commit = model.commits.get(commit_id).unwrap();
-        if index == 0 {
-          // Absolute position the commit
-          writeln!(buf, "circle \"{}\" at ({}cm, {}cm)", commit_id, col * options.branch_dist, commit.time * options.commit_hist_dist);
-        } else {
-          writeln!(buf, "circle \"{}\"", commit_id);
-        }
-        if index < branch.commits.len() - 1 {
-          // Distance in history between this and the next one
-          let hist_diff = &model.commits[&branch.commits[index + 1]].time - &model.commits[commit_id].time;
-          writeln!(buf, "arrow <- to {}cm above {} chop", hist_diff * options.commit_hist_dist - options.commit_radius, commit_id);
-        }
+  // Go through the lanes and paint them
+  for lane in &view.lanes {
+    writeln!(buf, "// branch: {}", lane.branch_names.join(", "))?;
+    // First one
+    if let Some(first_commit) = lane.commits.first() {
+      // absolute position the commit
+      writeln!(buf, "circle \"{}\" at ({}cm, {}cm)", first_commit.id, lane.col * options.branch_dist, first_commit.time * options.commit_hist_dist)?;
+      let mut last_commit = first_commit;
+      // Go through the remaining commits
+      for commit in lane.commits.iter().skip(1) {
+        let hist_diff = last_commit.time - commit.time;
+        // Draw the arrow
+        writeln!(buf, "arrow {}cm chop", hist_diff * options.commit_hist_dist - 2*options.commit_radius)?;
+        // Draw the new commit
+        writeln!(buf, "circle \"{}\"", commit.id)?;
+        last_commit = commit;
       }
     }
   }
 
-  // Go through commits and print those lines, that are not "in-branch"
-  for (id, commit) in model.commits.iter() {
-    let branch = &model.branches[&commit.branch];
+  // Go through commits and print those lines, that are not "in-lane"
+  writeln!(buf, "// out of branch parents")?;
+  for (commit_id, commit) in &view.commits {
     for parent in commit.parents.iter() {
-      let parent_commit = &model.commits[parent];
-      let parent_branch = &model.branches[&parent_commit.branch];
-
-      if parent_commit.branch == commit.branch {
+      if parent.in_lane {
         continue
       }
-      // Same data about us ...
-      let child_is_first_in_branch = branch.commits.first() == Some(id);
-      let parent_is_last_in_branch = parent_branch.commits.last() == Some(parent);
-
-      // Find a mid point
-      let mid_on_child_branch = child_is_first_in_branch && !parent_is_last_in_branch;
-      let mid_on_parent_branch = parent_is_last_in_branch && !child_is_first_in_branch;
-      match (mid_on_child_branch, mid_on_parent_branch) {
-        (true,false) => {
-          //arrow from D chop then down 2cm then to A
-          writeln!(buf, "arrow from {} chop then to {}cm below {} then to {} chop", id, options.branch_dist, id, parent);
-        },
-        (false,true) => {
-          writeln!(buf, "arrow from {} chop then to {}cm above {} then to {} chop", id, options.branch_dist, parent, parent);
-        },
-        default => {
-          // arrow from D chop then to 2cm above G then to G chop
-          writeln!(buf, "arrow from {} to {} chop", id, parent);
+      match (parent.begins_lane, parent.ends_lane) {
+        (true, false) => {
+          let down_dist = (commit.time - parent.commit.time)
+              * (options.commit_hist_dist) - (options.branch_dist);
+          writeln!(buf, "arrow from {} chop then to {}cm below {} then to {} chop", commit_id, down_dist, commit_id, parent.commit.id)?;
+        }
+        (false, true) => {
+          let up_dist = (commit.time - parent.commit.time)
+              * (options.commit_hist_dist) - (options.branch_dist);
+          writeln!(buf, "arrow from {} chop then to {}cm above {} then to {} chop", commit_id, up_dist, parent.commit.id, parent.commit.id)?;
+        }
+        _ => {
+          writeln!(buf, "arrow from {} to {} chop", commit_id, parent.commit.id)?;
         }
       }
-    }
-    if commit.parents.len() == 1 {
-      continue;
     }
   }
 
 
   // Prepare branch tips
-  writeln!(buf, "boxht = 0;");
+  writeln!(buf, "// branch heads")?;
+  writeln!(buf, "boxht = 0;")?;
 
   // Branch tips!
-  let commits_branch_tops = model.calc_branch_tips_for_commits();
-  for (commit, branches) in commits_branch_tops.iter() {
-    for (index, branch) in branches.iter().enumerate() {
-     if index == 0 {
-       // First branch
-       writeln!(buf, "right");
-       writeln!(buf, "line from {} to ({}cm, {}.y) chop", commit, branch_cols.len() * options.branch_dist, commit);
-       writeln!(buf, "box \"{}\"", branch);
-       if (branches.len() > 1) {
-         writeln!(buf, "down");
-       }
-     } else {
-       // Other branches
-       writeln!(buf, "box \"{}\"", branch);
-     }
+  for (commit, branches) in &view.commits_branch_heads {
+    if let Some(branch) = branches.first() {
+      // First branch
+      writeln!(buf, "right")?;
+      writeln!(buf, "line from {} to ({}cm, {}.y) chop", commit, view.lanes.len() * options.branch_dist, commit)?;
+      writeln!(buf, "box \"{}\"", branch.name)?;
+    }
+    for branch in branches.iter().skip(1) {
+      // Other branches
+      writeln!(buf, "box \"{}\"", branch.name)?;
     }
   }
-
 
   Ok(String::from_utf8(buf.into_inner()?)?)
 }

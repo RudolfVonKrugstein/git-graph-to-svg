@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 error-chain = "0.12"
+regex = "1"
+lazy_static = "1.4"
