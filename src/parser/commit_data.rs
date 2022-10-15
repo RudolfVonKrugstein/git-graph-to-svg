@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::parser::branch_data::BranchData;
+use std::collections::HashMap;
 
 pub struct CommitData {
     pub commit_id: String,
@@ -7,8 +7,6 @@ pub struct CommitData {
     pub merge_into_branches: Vec<String>,
     pub merge_from_branches: Vec<String>,
 }
-
-
 
 pub fn build_commit_data(
     branch_datas: &Vec<BranchData>,

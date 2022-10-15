@@ -1,6 +1,6 @@
-mod parser;
 mod errors;
 mod instruction;
+mod parser;
 pub use instruction::*;
 mod arguments;
 

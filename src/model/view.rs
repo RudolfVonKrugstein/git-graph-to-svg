@@ -1,6 +1,6 @@
+use crate::model::state::ParseState;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use crate::model::state::ParseState;
 
 pub struct Commit {
     pub id: String,
@@ -19,10 +19,10 @@ pub struct Parent {
     pub in_lane: bool,
 }
 
-pub struct  Branch {
+pub struct Branch {
     pub name: String,
     pub head: Option<Rc<Commit>>,
-    pub style: String
+    pub style: String,
 }
 
 pub struct Lane {
@@ -43,7 +43,7 @@ pub struct View {
     pub commits: HashMap<String, Rc<Commit>>,
     pub lanes: Vec<Rc<Lane>>,
     pub branches: HashMap<String, Rc<Branch>>,
-    pub commits_branch_heads: HashMap<String, Vec<Rc<Branch>>>
+    pub commits_branch_heads: HashMap<String, Vec<Rc<Branch>>>,
 }
 
 impl View {
@@ -71,29 +71,33 @@ impl View {
                 }
                 head = state_commit.parents.first();
             }
-            commit_id_lanes.push(
-               LaneWithCommitIds {
-                   branch_names: Vec::from([branch.name.clone()]),
-                   commit_ids: lane_commits,
-                   priority: branch.priority
-               }
-            );
+            commit_id_lanes.push(LaneWithCommitIds {
+                branch_names: Vec::from([branch.name.clone()]),
+                commit_ids: lane_commits,
+                priority: branch.priority,
+            });
         }
         // Find the first and last of lanes commits
-        let first_commits = commit_id_lanes.iter().fold(
-            HashSet::new(),
-            |mut res, l| match l.commit_ids.first() {
-                None => res,
-                Some(&c) => {res.insert(c); res}
-            }
-        );
-        let last_commits = commit_id_lanes.iter().fold(
-            HashSet::new(),
-            |mut res, l| match l.commit_ids.last() {
-                None => res,
-                Some(&c) => {res.insert(c); res}
-            }
-        );
+        let first_commits =
+            commit_id_lanes
+                .iter()
+                .fold(HashSet::new(), |mut res, l| match l.commit_ids.first() {
+                    None => res,
+                    Some(&c) => {
+                        res.insert(c);
+                        res
+                    }
+                });
+        let last_commits =
+            commit_id_lanes
+                .iter()
+                .fold(HashSet::new(), |mut res, l| match l.commit_ids.last() {
+                    None => res,
+                    Some(&c) => {
+                        res.insert(c);
+                        res
+                    }
+                });
         // List of commits
         let mut commits: HashMap<String, Rc<Commit>> = HashMap::new();
         for id in time_ord_commits {
@@ -101,7 +105,7 @@ impl View {
             // Get the parents
             let mut parents: Vec<Parent> = Vec::new();
             for parent in &state_commit.parents {
-                parents.push(Parent{
+                parents.push(Parent {
                     commit: commits.get(parent).unwrap().clone(),
                     style: "".to_string(),
                     ends_lane: first_commits.contains(parent),
@@ -110,26 +114,34 @@ impl View {
                 });
             }
 
-            commits.insert(id.clone(), Rc::new(Commit {
-                id: state_commit.id.clone(),
-                hash: state_commit.id.clone(),
-                message: "".to_string(),
-                time: state_commit.time,
-                style: "".to_string(),
-                parents: parents,
-            }));
+            commits.insert(
+                id.clone(),
+                Rc::new(Commit {
+                    id: state_commit.id.clone(),
+                    hash: state_commit.id.clone(),
+                    message: "".to_string(),
+                    time: state_commit.time,
+                    style: "".to_string(),
+                    parents: parents,
+                }),
+            );
         }
 
         // Make the lanes
-        let lanes = commit_id_lanes.iter().map(
-            |l| Rc::new(Lane {
-                branch_names: l.branch_names.clone(),
-                col: l.priority,
-                commits: l.commit_ids.iter().map(
-                    |&id| commits.get(id).unwrap().clone()
-                ).collect::<Vec<Rc<Commit>>>()
+        let lanes = commit_id_lanes
+            .iter()
+            .map(|l| {
+                Rc::new(Lane {
+                    branch_names: l.branch_names.clone(),
+                    col: l.priority,
+                    commits: l
+                        .commit_ids
+                        .iter()
+                        .map(|&id| commits.get(id).unwrap().clone())
+                        .collect::<Vec<Rc<Commit>>>(),
+                })
             })
-        ).collect::<Vec<Rc<Lane>>>();
+            .collect::<Vec<Rc<Lane>>>();
 
         // List of branches
         let mut branches = HashMap::new();
@@ -138,12 +150,13 @@ impl View {
                 branch.name.clone(),
                 Rc::new(Branch {
                     name: branch.name.clone(),
-                    head: branch.current_commit.as_ref().and_then(
-                        |id| commits.get(id).cloned(),
-                    ),
-                    style: "".to_string()
-                }
-                ));
+                    head: branch
+                        .current_commit
+                        .as_ref()
+                        .and_then(|id| commits.get(id).cloned()),
+                    style: "".to_string(),
+                }),
+            );
         }
 
         // Branch heads
@@ -162,7 +175,7 @@ impl View {
             commits,
             branches,
             commits_branch_heads,
-            lanes
+            lanes,
         }
     }
 }

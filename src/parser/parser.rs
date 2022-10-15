@@ -1,7 +1,7 @@
-use std::cmp::max;
-use std::collections::HashMap;
 use crate::parser::branch_data::build_branch_data;
 use crate::parser::commit_data::build_commit_data;
+use std::cmp::max;
+use std::collections::HashMap;
 
 // pub fn parse_graph(input: String) -> Result<Model, String> {
 //     let mut result = Model::new();

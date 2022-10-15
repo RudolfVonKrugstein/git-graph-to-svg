@@ -1,6 +1,6 @@
-use std::io::{BufWriter};
+use std::io::BufWriter;
 
-error_chain!{
+error_chain! {
     types {
         Error, ErrorKind, ResultExt, Result;
     }

@@ -1,5 +1,5 @@
 [package]
-name = "git_graph_to_pikchr"
+name = "git-graph-to-svg"
 version = "0.1.0"
 edition = "2021"
 

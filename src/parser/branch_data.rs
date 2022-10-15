@@ -28,13 +28,11 @@ pub fn build_branch_data(input: String) -> Result<Vec<BranchData>, String> {
         let commits = tmp[1];
 
         // And remember branches data
-        branch_datas.push(
-            BranchData {
-                name: name.to_string(),
-                commit_line: commits.chars().collect::<Vec<char>>(),
-                merge_into_commits: Vec::new(),
-            },
-        );
+        branch_datas.push(BranchData {
+            name: name.to_string(),
+            commit_line: commits.chars().collect::<Vec<char>>(),
+            merge_into_commits: Vec::new(),
+        });
         max_commit_length = max(max_commit_length, commits.len())
     }
     Ok(branch_datas)

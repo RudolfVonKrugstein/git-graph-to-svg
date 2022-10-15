@@ -1,13 +1,13 @@
-use std::borrow::Borrow;
-use std::cmp::Ordering;
-use std::collections::HashMap;
-use regex::Regex;
-use crate::parser::instructions::errors::ErrorKind::InvalidInstruction;
 use super::errors::*;
 use super::instruction::*;
 use crate::model::state::*;
+use crate::parser::instructions::errors::ErrorKind::InvalidInstruction;
+use regex::Regex;
+use std::borrow::Borrow;
+use std::cmp::Ordering;
+use std::collections::HashMap;
 
-pub fn parse_git_instructions(input: &str) -> Result<ParseState>{
+pub fn parse_git_instructions(input: &str) -> Result<ParseState> {
     // Go through input line by line
     let lines = input.split("\n");
     let mut state = ParseState::new();
@@ -22,6 +22,6 @@ pub fn parse_git_instructions(input: &str) -> Result<ParseState>{
         let command = Instruction::from_line(line, line_num)?;
 
         state.apply_instruction(&command);
-    };
+    }
     Ok(state)
 }

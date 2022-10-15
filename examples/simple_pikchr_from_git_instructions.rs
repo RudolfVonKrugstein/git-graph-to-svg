@@ -1,9 +1,9 @@
-use git_graph_to_pikchr::{parse_git_instructions, print_pikchr};
-use git_graph_to_pikchr::model::View;
-use git_graph_to_pikchr::options::layout::LayoutOptions;
+use git_graph_to_svg::model::View;
+use git_graph_to_svg::options::layout::LayoutOptions;
+use git_graph_to_svg::{parse_git_instructions, print_pikchr};
 
 fn main() {
-// Create the model
+    // Create the model
     let state = parse_git_instructions(
         r###"
         branch(main)
@@ -16,8 +16,12 @@ fn main() {
         checkout(main)
         commit(E)
         merge(F,feature/x)
-        "###
-    ).unwrap();
+        "###,
+    )
+    .unwrap();
     let view = View::from_state(&state);
-    println!("{}", print_pikchr(&view, &LayoutOptions::default()).unwrap());
+    println!(
+        "{}",
+        print_pikchr(&view, &LayoutOptions::default()).unwrap()
+    );
 }
