@@ -1,31 +1,19 @@
 use crate::parser::instructions::Instruction;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use crate::model::branch::Branch;
+use crate::model::commit::Commit;
 
-pub struct Branch {
-    pub name: String,
-    pub style: String,
-    pub priority: usize,
-    pub current_commit: Option<String>,
-}
 
-#[derive(Debug)]
-pub struct Commit {
-    pub id: String,
-    pub time: usize,
-    pub branch: String,
-    pub parents: Vec<String>,
-}
-
-pub struct ParseState {
+pub struct Repository {
     pub branches: HashMap<String, Branch>,
     pub current_branch: Option<String>,
     pub commits: HashMap<String, Commit>,
 }
 
-impl ParseState {
-    pub fn new() -> ParseState {
-        ParseState {
+impl Repository {
+    pub fn new() -> Repository {
+        Repository {
             branches: HashMap::new(),
             current_branch: None,
             commits: HashMap::new(),

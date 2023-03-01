@@ -1,16 +1,16 @@
 use super::errors::*;
 use super::instruction::*;
-use crate::model::state::*;
+use crate::model::repo::*;
 use crate::parser::instructions::errors::ErrorKind::InvalidInstruction;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-pub fn parse_git_instructions(input: &str) -> Result<ParseState> {
+pub fn parse_git_instructions(input: &str) -> Result<Repository> {
     // Go through input line by line
     let lines = input.split("\n");
-    let mut state = ParseState::new();
+    let mut state = Repository::new();
     for (line_num, line) in lines.enumerate() {
         let line = line.trim();
         // Ignore empty instructions

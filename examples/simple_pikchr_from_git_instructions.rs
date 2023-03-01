@@ -1,4 +1,4 @@
-use git_graph_to_svg::model::View;
+use git_graph_to_svg::view::View;
 use git_graph_to_svg::options::layout::LayoutOptions;
 use git_graph_to_svg::{parse_git_instructions, print_pikchr};
 

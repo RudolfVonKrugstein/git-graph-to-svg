@@ -1,4 +1,4 @@
-use crate::model::state::ParseState;
+use crate::model::repo::Repository;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
@@ -47,7 +47,7 @@ pub struct View {
 }
 
 impl View {
-    pub fn from_state(state: &ParseState) -> View {
+    pub fn from_state(state: &Repository) -> View {
         // Time list of commit ids
         // We need this, because if we create commits like this
         // we ensure that the parents have already been created.

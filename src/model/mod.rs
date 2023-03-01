@@ -1,4 +1,5 @@
-pub mod state;
-pub mod view;
-pub use state::ParseState;
-pub use view::View;
+pub mod repo;
+mod branch;
+mod commit;
+
+pub use repo::Repository;

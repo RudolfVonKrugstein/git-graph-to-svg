@@ -1,5 +1,5 @@
 use super::super::errors::*;
-use crate::model::view::View;
+use crate::view::View;
 use crate::options::layout::{LayoutDirection, LayoutOptions};
 use std::io::{BufWriter, Write};
 
