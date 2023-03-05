@@ -10,7 +10,7 @@ use std::collections::HashMap;
 pub fn parse_git_instructions(input: &str) -> Result<Repository> {
     // Go through input line by line
     let lines = input.split("\n");
-    let mut state = Repository::new();
+    let mut state = Repository::default();
     for (line_num, line) in lines.enumerate() {
         let line = line.trim();
         // Ignore empty instructions

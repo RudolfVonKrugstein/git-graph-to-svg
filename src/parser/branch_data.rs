@@ -1,5 +1,4 @@
 use std::cmp::max;
-use std::collections::HashMap;
 
 // Data we remember for every branch
 pub struct BranchData {
