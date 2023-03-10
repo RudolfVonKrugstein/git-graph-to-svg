@@ -9,3 +9,6 @@ edition = "2021"
 error-chain = "0.12"
 regex = "1"
 lazy_static = "1.4"
+serde_yaml = "~0"
+serde = { version = "~1", features = ["derive"] }
+#[derive(Serialize, , PartialEq, Debug)]

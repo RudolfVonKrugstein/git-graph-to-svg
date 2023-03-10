@@ -1,5 +1,4 @@
 use crate::parser::branch_data::BranchData;
-use std::collections::HashMap;
 
 pub struct CommitData {
     pub commit_id: String,

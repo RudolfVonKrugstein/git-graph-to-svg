@@ -1,11 +1,6 @@
 use super::errors::*;
 use super::instruction::*;
 use crate::model::repo::*;
-use crate::parser::instructions::errors::ErrorKind::InvalidInstruction;
-use regex::Regex;
-use std::borrow::Borrow;
-use std::cmp::Ordering;
-use std::collections::HashMap;
 
 pub fn parse_git_instructions(input: &str) -> Result<Repository> {
     // Go through input line by line

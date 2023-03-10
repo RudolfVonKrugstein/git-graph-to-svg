@@ -59,7 +59,7 @@ impl Repository {
                 self.checkout_branch(branch);
             }
             Instruction::MERGE(commit_id, addition_parents) => {
-                self.merge(commit_id.clone(), addition_parents.clone());
+                self.merge(commit_id.clone(), addition_parents);
             }
         }
     }
@@ -116,10 +116,10 @@ impl Repository {
     }
 
     pub fn commit(&mut self, id: String) {
-        self.merge(id, Vec::new());
+        self.merge(id, &Vec::new());
     }
 
-    pub fn merge(&mut self, id: String, add_branches: Vec<String>) {
+    pub fn merge(&mut self, id: String, add_branches: &Vec<String>) {
         if self.head == None {
             self.checkout_branch(&"main".to_string());
         }
@@ -133,7 +133,7 @@ impl Repository {
                 parent_commits.push(branch_parent.clone());
             }
             // And the additional branches
-            for branch in &add_branches {
+            for branch in add_branches {
                 // Is it a branch?
                 if let Some(branch_commit) = self
                     .branches
@@ -246,7 +246,7 @@ mod test {
         repo.commit("C".to_string());
         repo.checkout_branch("main");
         repo.commit("D".to_string());
-        repo.merge("M".to_string(), vec!["feature1".to_string()]);
+        repo.merge("M".to_string(), &vec!["feature1".to_string()]);
 
         // Test
         assert_eq!(repo.branch_commits("main"), HashSet::from_iter(vec!["A".to_string(),"B".to_string(), "D".to_string(),"M".to_string()]));
@@ -267,7 +267,7 @@ mod test {
         repo.commit("C".to_string());
         repo.checkout_branch("main");
         repo.commit("D".to_string());
-        repo.merge("M".to_string(), vec!["feature1".to_string(),"feature2".to_string()]);
+        repo.merge("M".to_string(), &vec!["feature1".to_string(),"feature2".to_string()]);
 
         // Test
         assert_eq!(repo.branch_commits("main"), HashSet::from_iter(vec!["A".to_string(),"B".to_string(),"C".to_string(), "D".to_string(),"M".to_string()]));

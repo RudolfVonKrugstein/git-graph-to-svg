@@ -1,4 +1,3 @@
-use std::io::BufWriter;
 
 error_chain! {
     types {
